@@ -17,7 +17,9 @@ class CreateLink extends React.Component {
         description,
         url
       }
-    })
+    });
+    // redirect to new news after posting an article
+    this.props.history.push('/');
   }
 
   render() {
