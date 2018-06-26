@@ -13,6 +13,49 @@ class LinkList extends React.Component {
     store.writeQuery({ query: FEED_QUERY, data });
   }
 
+  _subscribeToNewLinks = () => {
+    this.props.feedQuery.subscribeToMore({
+      // the subscription query itself. Fires off everytime a new link is created.
+      document: gql`
+        subscription {
+          newLink {
+            node {
+              id
+              url
+              description
+              createdAt
+              postedBy {
+                id
+                name
+              }
+              votes {
+                id
+                user {
+                  id
+                }
+              }
+            }
+          }
+        }
+      `,
+      // how should store update with the info sent by the server
+      updateQuery: (previous, { subscriptionData }) => {
+        const newAllLinks = [subscriptionData.data.newLink.mode, ...previous.feed.links];
+        const result = {
+          ...previous,
+          feed: {
+            links: newAllLinks
+          }
+        }
+        return result;
+      }
+    });
+  }
+
+  componentDidMount() {
+    this._subscribeToNewLinks();
+  }
+
   render() {
 
     if (this.props.feedQuery && this.props.feedQuery.loading) {
