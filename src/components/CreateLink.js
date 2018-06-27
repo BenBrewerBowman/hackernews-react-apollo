@@ -1,7 +1,8 @@
 import React from 'react';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { FEED_QUERY } from './LinkList'
+import { FEED_QUERY } from './LinkList';
+import { LINKS_PER_PAGE } from '../constants';
 
 
 class CreateLink extends React.Component {
@@ -19,16 +20,23 @@ class CreateLink extends React.Component {
         url
       },
       update: (store, { data: { post } }) => {
-        const data = store.readQuery({ query: FEED_QUERY });
-        data.feed.links.sprice(0, 0, post);
+        const first = LINKS_PER_PAGE;
+        const skip = 0;
+        const orderBy = 'createdAt_Desc';
+        const data = store.readQuery({ 
+          query: FEED_QUERY,
+          variables: { first, skip, orderBy } 
+        });
+        data.feed.links.splice(0, 0, post);
         store.writeQuery({
           query: FEED_QUERY,
-          data
+          data,
+          variables: { first, skip, orderBy }
         });
       }
     });
     // redirect to new news after posting an article
-    this.props.history.push('/');
+    this.props.history.push('/new/1');
   }
 
   render() {
